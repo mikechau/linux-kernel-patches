@@ -1,3 +1,13 @@
+From 863ac23b891d887dea2adfac99969daa485e50a6 Mon Sep 17 00:00:00 2001
+From: Mike Chau <mikechau@noreply.users.github.com>
+Date: Sun, 25 Jun 2017 22:08:08 -0700
+Subject: [PATCH] Add x230 FHD patch
+
+---
+ drivers/gpu/drm/i915/intel_dp.c   |  2 +-
+ drivers/gpu/drm/i915/intel_lvds.c | 16 ++++++++++++++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
 diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
 index d1670b8afbf5..ce1d53323fd0 100644
 --- a/drivers/gpu/drm/i915/intel_dp.c
@@ -38,3 +48,6 @@ index 9ca4dc4d2378..e70381ce5dbf 100644
  
  	{ }	/* terminating entry */
  };
+-- 
+2.13.0
+
