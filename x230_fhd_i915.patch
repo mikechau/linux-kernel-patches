@@ -1,13 +1,3 @@
-From 3b631817cdbc61a30933c4054a10a7f5b1c8a0fb Mon Sep 17 00:00:00 2001
-From: Mike Chau <mikechau@users.noreply.github.com>
-Date: Sun, 25 Jun 2017 15:46:25 -0700
-Subject: [PATCH] Apply X230 FHD patch to i915
-
----
- drivers/gpu/drm/i915/intel_dp.c   | 2 +-
- drivers/gpu/drm/i915/intel_lvds.c | 8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
-
 diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
 index d1670b8afbf5..ce1d53323fd0 100644
 --- a/drivers/gpu/drm/i915/intel_dp.c
@@ -22,24 +12,29 @@ index d1670b8afbf5..ce1d53323fd0 100644
  
  static struct drm_device *intel_dp_to_dev(struct intel_dp *intel_dp)
 diff --git a/drivers/gpu/drm/i915/intel_lvds.c b/drivers/gpu/drm/i915/intel_lvds.c
-index 9ca4dc4d2378..7e46fe784ef1 100644
+index 9ca4dc4d2378..e70381ce5dbf 100644
 --- a/drivers/gpu/drm/i915/intel_lvds.c
 +++ b/drivers/gpu/drm/i915/intel_lvds.c
-@@ -665,6 +665,14 @@ static int intel_no_lvds_dmi_callback(const struct dmi_system_id *id)
- static const struct dmi_system_id intel_no_lvds[] = {
- 	{
- 		.callback = intel_no_lvds_dmi_callback,
+@@ -862,6 +862,22 @@ static const struct dmi_system_id intel_no_lvds[] = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_NAME, "D525MW"),
+ 		},
+ 	},
++	{
++		.callback = intel_no_lvds_dmi_callback,
++		.ident = "Thinkpad X230 FHD",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "2324JC6")
++		}
++	},
++	{
++		.callback = intel_no_lvds_dmi_callback,
 +		.ident = "Thinkpad X230 FHD",
 +		.matches = {
 +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
 +			DMI_MATCH(DMI_PRODUCT_NAME, "2324B14")
 +		}
 +	},
-+	{
-+		.callback = intel_no_lvds_dmi_callback,
- 		.ident = "Apple Mac Mini (Core series)",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Apple"),
--- 
-2.13.0
-
+ 
+ 	{ }	/* terminating entry */
+ };
