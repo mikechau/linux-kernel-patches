@@ -1,15 +1,15 @@
-From 863ac23b891d887dea2adfac99969daa485e50a6 Mon Sep 17 00:00:00 2001
-From: Mike Chau <mikechau@noreply.users.github.com>
+From 3c48cf108f27814bd2ac63b69f80d66bccd757e5 Mon Sep 17 00:00:00 2001
+From: Mike Chau <mikechau@noreply.users.github.io>
 Date: Sun, 25 Jun 2017 22:08:08 -0700
 Subject: [PATCH] Add x230 FHD patch
 
 ---
- drivers/gpu/drm/i915/intel_dp.c   |  2 +-
+ drivers/gpu/drm/i915/intel_dp.c   | 10 ++++++++--
  drivers/gpu/drm/i915/intel_lvds.c | 16 ++++++++++++++++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ 2 files changed, 24 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
-index d1670b8afbf5..ce1d53323fd0 100644
+index d1670b8afbf5..4b7257f21d7f 100644
 --- a/drivers/gpu/drm/i915/intel_dp.c
 +++ b/drivers/gpu/drm/i915/intel_dp.c
 @@ -108,7 +108,7 @@ static bool is_edp(struct intel_dp *intel_dp)
@@ -21,6 +21,21 @@ index d1670b8afbf5..ce1d53323fd0 100644
  }
  
  static struct drm_device *intel_dp_to_dev(struct intel_dp *intel_dp)
+@@ -5017,7 +5017,13 @@ bool intel_dp_is_edp(struct drm_i915_private *dev_priv, enum port port)
+ 	if (INTEL_GEN(dev_priv) < 9 && port == PORT_A)
+ 		return true;
+ 
+-	return intel_bios_is_port_edp(dev_priv, port);
++	if (intel_bios_is_port_edp(dev_priv, port))
++		return true;
++
++	if (port == PORT_D)
++		return true;
++
++	return false;
+ }
+ 
+ void
 diff --git a/drivers/gpu/drm/i915/intel_lvds.c b/drivers/gpu/drm/i915/intel_lvds.c
 index 9ca4dc4d2378..e70381ce5dbf 100644
 --- a/drivers/gpu/drm/i915/intel_lvds.c
