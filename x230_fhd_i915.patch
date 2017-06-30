@@ -1,15 +1,47 @@
-From 3c48cf108f27814bd2ac63b69f80d66bccd757e5 Mon Sep 17 00:00:00 2001
-From: Mike Chau <mikechau@noreply.users.github.io>
-Date: Sun, 25 Jun 2017 22:08:08 -0700
-Subject: [PATCH] Add x230 FHD patch
+From b880846e8568754663d5f8a049b3c093d33ec6a5 Mon Sep 17 00:00:00 2001
+From: Mike Chau <mike@noreply.users.github.io>
+Date: Fri, 30 Jun 2017 00:17:28 -0700
+Subject: [PATCH] Add X230 FHD i915 patch
 
 ---
- drivers/gpu/drm/i915/intel_dp.c   | 10 ++++++++--
- drivers/gpu/drm/i915/intel_lvds.c | 16 ++++++++++++++++
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ drivers/acpi/pci_root.c           | 5 +----
+ drivers/gpu/drm/i915/intel_dp.c   | 5 ++++-
+ drivers/gpu/drm/i915/intel_lvds.c | 8 ++++++++
+ drivers/pci/pci-acpi.c            | 3 +--
+ 4 files changed, 14 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/acpi/pci_root.c b/drivers/acpi/pci_root.c
+index 919be0aa2578..3336449fdbaf 100644
+--- a/drivers/acpi/pci_root.c
++++ b/drivers/acpi/pci_root.c
+@@ -500,7 +500,7 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
+ 	} else {
+ 		decode_osc_control(root, "OS requested", requested);
+ 		decode_osc_control(root, "platform willing to grant", control);
+-		dev_info(&device->dev, "_OSC failed (%s); disabling ASPM\n",
++		dev_info(&device->dev, "_OSC failed (%s); we keep ASPM on anyway\n",
+ 			acpi_format_exception(status));
+ 
+ 		/*
+@@ -510,7 +510,6 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
+ 		 * flag here, to defer the action until after the ACPI
+ 		 * root scan.
+ 		 */
+-		*no_aspm = 1;
+ 	}
+ }
+ 
+@@ -604,8 +603,6 @@ static int acpi_pci_root_add(struct acpi_device *device,
+ 		goto remove_dmar;
+ 	}
+ 
+-	if (no_aspm)
+-		pcie_no_aspm();
+ 
+ 	pci_acpi_add_bus_pm_notifier(device);
+ 	if (device->wakeup.flags.run_wake)
 diff --git a/drivers/gpu/drm/i915/intel_dp.c b/drivers/gpu/drm/i915/intel_dp.c
-index d1670b8afbf5..4b7257f21d7f 100644
+index d1670b8afbf5..7d64fcfceff7 100644
 --- a/drivers/gpu/drm/i915/intel_dp.c
 +++ b/drivers/gpu/drm/i915/intel_dp.c
 @@ -108,7 +108,7 @@ static bool is_edp(struct intel_dp *intel_dp)
@@ -17,52 +49,53 @@ index d1670b8afbf5..4b7257f21d7f 100644
  	struct intel_digital_port *intel_dig_port = dp_to_dig_port(intel_dp);
  
 -	return intel_dig_port->base.type == INTEL_OUTPUT_EDP;
-+	return intel_dig_port->base.type == INTEL_OUTPUT_EDP || strncmp(intel_dp->attached_connector->base.name, "DP-3", 4) == 0;
++	return intel_dig_port->base.type == INTEL_OUTPUT_EDP || strncmp(intel_dp->attached_connector->base.name, "DP-3", 4) == 0;;
  }
  
  static struct drm_device *intel_dp_to_dev(struct intel_dp *intel_dp)
-@@ -5017,7 +5017,13 @@ bool intel_dp_is_edp(struct drm_i915_private *dev_priv, enum port port)
+@@ -5017,6 +5017,9 @@ bool intel_dp_is_edp(struct drm_i915_private *dev_priv, enum port port)
  	if (INTEL_GEN(dev_priv) < 9 && port == PORT_A)
  		return true;
  
--	return intel_bios_is_port_edp(dev_priv, port);
-+	if (intel_bios_is_port_edp(dev_priv, port))
++	if (INTEL_GEN(dev_priv) < 9 && port == PORT_D)
 +		return true;
 +
-+	if (port == PORT_D)
-+		return true;
-+
-+	return false;
+ 	return intel_bios_is_port_edp(dev_priv, port);
  }
  
- void
 diff --git a/drivers/gpu/drm/i915/intel_lvds.c b/drivers/gpu/drm/i915/intel_lvds.c
-index 9ca4dc4d2378..e70381ce5dbf 100644
+index 9ca4dc4d2378..d60b5f11a27f 100644
 --- a/drivers/gpu/drm/i915/intel_lvds.c
 +++ b/drivers/gpu/drm/i915/intel_lvds.c
-@@ -862,6 +862,22 @@ static const struct dmi_system_id intel_no_lvds[] = {
+@@ -862,6 +862,14 @@ static const struct dmi_system_id intel_no_lvds[] = {
  			DMI_EXACT_MATCH(DMI_BOARD_NAME, "D525MW"),
  		},
  	},
 +	{
 +		.callback = intel_no_lvds_dmi_callback,
-+		.ident = "Thinkpad X230 FHD",
++		.ident = "ThinkPad X230 FHD",
 +		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "2324JC6")
-+		}
-+	},
-+	{
-+		.callback = intel_no_lvds_dmi_callback,
-+		.ident = "Thinkpad X230 FHD",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "2324B14")
-+		}
++			DMI_MATCH(DMI_BOARD_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "2324JC6"),
++		},
 +	},
  
  	{ }	/* terminating entry */
  };
+diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
+index 001860361434..74ffbd6fb09d 100644
+--- a/drivers/pci/pci-acpi.c
++++ b/drivers/pci/pci-acpi.c
+@@ -863,8 +863,7 @@ static int __init acpi_pci_init(void)
+ 	}
+ 
+ 	if (acpi_gbl_FADT.boot_flags & ACPI_FADT_NO_ASPM) {
+-		pr_info("ACPI FADT declares the system doesn't support PCIe ASPM, so disable it\n");
+-		pcie_no_aspm();
++		pr_info("ACPI FADT declares the system doesn't support PCIe ASPM, but keep it enabled\n");
+ 	}
+ 
+ 	ret = register_acpi_bus_type(&acpi_pci_bus);
 -- 
 2.13.0
 
